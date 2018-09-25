@@ -29,9 +29,12 @@ using android::IGraphicBufferConsumer;
 using android::IGraphicBufferProducer;
 using android::PixelFormat;
 using android::SurfaceControl;
+<<<<<<< HEAD
 using android::SurfaceComposerClient;
 
 android::SurfaceComposerClient::Transaction *t;
+=======
+>>>>>>> 85fa5bbff114435cab1be4a5aab4e28cdada79eb
 
 // BufferItemConsumer(const sp<IGraphicBufferConsumer& consumer,
 //                    uint64_t consumerUsage,
