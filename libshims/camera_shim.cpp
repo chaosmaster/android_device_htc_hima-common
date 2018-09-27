@@ -87,12 +87,12 @@ extern "C" void* _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8
     uint32_t flags, SurfaceControl* parent, uint32_t windowType,
     uint32_t ownerUid);
 
-extern sp<android::SurfaceControl> ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8Ejjij(
+/*extern sp<android::SurfaceControl> ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8Ejjij(
     const android::String8& name, uint32_t w, uint32_t h, PixelFormat format,
     uint32_t flags) {
   sp<SurfaceComposerClient> scc = new SurfaceComposerClient();
   return scc->createSurface(name, w, h, format, flags,  nullptr, 0, 0);
-}
+}*/
 
 // status_t setLayer(int32_t layer);
 /* needed for N-libs
@@ -103,7 +103,10 @@ extern "C" status_t _ZN7android14SurfaceControl8setLayerEj(uint32_t layer) {
 }
 */
 
-extern "C" void _ZN7android5FenceD1Ev() { }
+// android::Fence::~Fence()
+extern "C" void _ZN7android5FenceD1Ev() {
+  // no-op, the explicit destructor was replaced with = default;
+}
 
 extern "C" void _ZN7android21SurfaceComposerClient21openGlobalTransactionEv() {
   t = new(android::SurfaceComposerClient::Transaction);
@@ -112,7 +115,7 @@ extern "C" void _ZN7android21SurfaceComposerClient20setDisplayProjectionERKNS_2s
     const sp<IBinder>& token,
     uint32_t orientation,
     const android::Rect& layerStackRect,
-    const android::Rect& displayRect) { 
+    const android::Rect& displayRect) {
   t->setDisplayProjection(token, orientation, layerStackRect, displayRect);
 }
 
