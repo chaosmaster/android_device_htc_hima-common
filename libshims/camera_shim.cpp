@@ -32,6 +32,7 @@ using android::SurfaceControl;
 using android::SurfaceComposerClient;
 
 android::SurfaceComposerClient::Transaction *t;
+void* sc;
 
 // BufferItemConsumer(const sp<IGraphicBufferConsumer& consumer,
 //                    uint64_t consumerUsage,
@@ -72,35 +73,49 @@ extern "C" void _ZN7android13GraphicBufferC1Ejjij(
 
 extern "C" void _ZN7android21SurfaceComposerClient17setDisplaySurfaceERKNS_2spINS_7IBinderEEERKNS1_INS_22IGraphicBufferProducerEEE(
     const sp<IBinder>& token, const sp<IGraphicBufferProducer>& bufferProducer) {
-  // setDisplaySurface is a static method, call it directly
   t->setDisplaySurface(token, bufferProducer);
 }
+
 
 // sp<SurfaceControl> createSurface(const String8& name, uint32_t w, uint32_t h,
 //                                  PixelFormat format, uint32_t flags = 0,
 //                                  SurfaceControl* parent = nullptr,
 //                                  uint32_t windowType = 0,
 //                                  uint32_t ownerUid = 0);
+/*
 extern "C" void* _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlEjj(
     const android::String8& name, uint32_t w, uint32_t h, PixelFormat format,
     uint32_t flags, SurfaceControl* parent, uint32_t windowType,
     uint32_t ownerUid);
+*/
 
-extern sp<android::SurfaceControl> ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8Ejjij(
+extern "C" void* _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlEii(
+    const android::String8& name,// name of the surface
+    uint32_t w,         // width in pixel
+    uint32_t h,         // height in pixel
+    PixelFormat format, // pixel-format desired
+    uint32_t flags = 0, // usage flags
+    SurfaceControl* parent = nullptr, // parent
+    int32_t windowType = -1, // from WindowManager.java (STATUS_BAR, INPUT_METHOD, etc.)
+    int32_t ownerUid = -1 // UID of the task
+);
+
+extern "C" void* _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8Ejjij(
     const android::String8& name, uint32_t w, uint32_t h, PixelFormat format,
     uint32_t flags) {
-  sp<SurfaceComposerClient> scc = new SurfaceComposerClient();
-  return scc->createSurface(name, w, h, format, flags,  nullptr, 0, 0);
+  sc = _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlEii(name, w, h, format, flags, nullptr, -1, -1);
+  return sc;
 }
 
 // status_t setLayer(int32_t layer);
-/* needed for N-libs
-extern "C" status_t _ZN7android14SurfaceControl8setLayerEi(int32_t layer);
+// needed for N-libs
+//extern "C" status_t _ZN7android14SurfaceControl8setLayerEi(int32_t layer);
 
 extern "C" status_t _ZN7android14SurfaceControl8setLayerEj(uint32_t layer) {
-  return _ZN7android14SurfaceControl8setLayerEi(layer);
+  t->setLayer((SurfaceControl*)sc, layer);
+  return android::NO_ERROR;
 }
-*/
+
 // android::Fence::~Fence()
 extern "C" void _ZN7android5FenceD1Ev() {
   // no-op, the explicit destructor was replaced with = default;
@@ -127,9 +142,22 @@ extern "C" void _ZN7android21SurfaceComposerClient22closeGlobalTransactionEb(){
   delete t;
 }
 
+//Needed for M-libs on Pie
+/*
 extern "C" void* _ZN7android25IPermissionControllerShim11asInterfaceERKNS_2spINS_7IBinderEEE(const sp<IBinder>&);
 extern "C" void* _ZN7android21IPermissionController11asInterfaceERKNS_2spINS_7IBinderEEE(
     const sp<IBinder>& remote){
   //android::IPermissionControllerShim::asInterface(remote);
   return _ZN7android25IPermissionControllerShim11asInterfaceERKNS_2spINS_7IBinderEEE(remote);
+}
+*/
+
+extern "C" status_t _ZN7android14SurfaceControl7setSizeEjj(uint32_t w, uint32_t h){
+  t->setSize((SurfaceControl*)sc, w, h);
+  return android::NO_ERROR;
+}
+
+extern "C" status_t _ZN7android14SurfaceControl11setPositionEff(float x, float y){
+  t->setPosition((SurfaceControl*)sc, x, y);
+  return android::NO_ERROR;
 }
