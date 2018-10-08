@@ -31,13 +31,14 @@ using android::PixelFormat;
 using android::SurfaceControl;
 using android::SurfaceComposerClient;
 
-android::SurfaceComposerClient::Transaction *t;
-void* sc;
+android::SurfaceComposerClient::Transaction *t = nullptr;
+void* sc = nullptr;
 
 // BufferItemConsumer(const sp<IGraphicBufferConsumer& consumer,
 //                    uint64_t consumerUsage,
 //                    int bufferCount = DEFAULT_MAX_BUFFERS,
 //                    bool controlledByApp = false)
+
 extern "C" void _ZN7android18BufferItemConsumerC1ERKNS_2spINS_22IGraphicBufferConsumerEEEyib(
     const sp<IGraphicBufferConsumer>& consumer, uint64_t consumerUsage,
     int bufferCount, bool controlledByApp);
@@ -46,7 +47,7 @@ extern "C" void _ZN7android18BufferItemConsumerC1ERKNS_2spINS_22IGraphicBufferCo
     const sp<IGraphicBufferConsumer>& consumer, uint32_t consumerUsage,
     int bufferCount, bool controlledByApp) {
   _ZN7android18BufferItemConsumerC1ERKNS_2spINS_22IGraphicBufferConsumerEEEyib(
-      consumer, consumerUsage, bufferCount, controlledByApp);
+      consumer, static_cast<uint64_t>(consumerUsage), bufferCount, controlledByApp);
 }
 
 extern "C" void _ZN7android11BufferQueue17createBufferQueueEPNS_2spINS_22IGraphicBufferProducerEEEPNS1_INS_22IGraphicBufferConsumerEEERKNS1_INS_19IGraphicBufferAllocEEE(
@@ -60,15 +61,14 @@ extern "C" void _ZN7android11BufferQueue17createBufferQueueEPNS_2spINS_22IGraphi
 // GraphicBuffer(uint32_t inWidth, uint32_t inHeight, PixelFormat inFormat,
 //               uint32_t inUsage, std::string requestorName = "<Unknown>");
 extern "C" void _ZN7android13GraphicBufferC1EjjijNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE(
-    uint32_t inWidth, uint32_t inHeight, PixelFormat inFormat, uint32_t inUsage,
-    std::string requestorName);
+    uint32_t inWidth, uint32_t inHeight, PixelFormat inFormat,
+    uint32_t inUsage, std::string requestorName = "<Unknown>");
 
 extern "C" void _ZN7android13GraphicBufferC1Ejjij(
     uint32_t inWidth, uint32_t inHeight, PixelFormat inFormat,
     uint32_t inUsage) {
-  std::string requestorName = "<Unknown>";
   _ZN7android13GraphicBufferC1EjjijNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEE(
-      inWidth, inHeight, inFormat, inUsage, requestorName);
+      inWidth, inHeight, inFormat, inUsage);
 }
 
 extern "C" void _ZN7android21SurfaceComposerClient17setDisplaySurfaceERKNS_2spINS_7IBinderEEERKNS1_INS_22IGraphicBufferProducerEEE(
@@ -140,6 +140,7 @@ extern "C" void _ZN7android21SurfaceComposerClient20setDisplayLayerStackERKNS_2s
 extern "C" void _ZN7android21SurfaceComposerClient22closeGlobalTransactionEb(){
   t->apply();
   delete t;
+  t = nullptr;
 }
 
 //Needed for M-libs on Pie
